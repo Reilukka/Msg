@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+  <style>
+    #chatBox {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+      margin-bottom: 10px;
+    }
+    #form {
+      display: flex;
+      gap: 10px;
+    }
+    #form input {
+      flex: 1;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chat App</h1>
+  <div id="chatBox"></div>
+  <div id="form">
+    <input type="text" id="username" placeholder="Seu nome">
+    <input type="text" id="message" placeholder="Digite sua mensagem">
+    <button id="sendMessage">Enviar</button>
+  </div>
+  <script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrmqWkSNTSeNJJtH0f-Vxxq66OpdR5SQ0",
+      authDomain: "lucas-c117f.firebaseapp.com",
+      databaseURL: "https://lucas-c117f-default-rtdb.firebaseio.com",
+      projectId: "lucas-c117f",
+      storageBucket: "lucas-c117f.appspot.com",
+      messagingSenderId: "171801604527",
+      appId: "1:171801604527:web:0de28c6aabc5e44a607f5a",
+      measurementId: "G-L4264QYZR6"
+    };
+
+    // Inicializa o Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Referência ao Realtime Database
+    const messagesRef = database.ref("messages");
+
+    // Enviar Mensagem
+    document.getElementById("sendMessage").addEventListener("click", function () {
+      const username = document.getElementById("username").value.trim();
+      const message = document.getElementById("message").value.trim();
+
+      if (username && message) {
+        messagesRef.push({
+          username,
+          message,
+          timestamp: Date.now()
+        }).then(() => {
+          document.getElementById("message").value = ""; // Limpa o campo de mensagem
+        }).catch((error) => {
+          console.error("Erro ao enviar mensagem:", error);
+        });
+      } else {
+        alert("Por favor, preencha o nome e a mensagem!");
+      }
+    });
+
+    // Receber Mensagens
+    messagesRef.on("child_added", function (snapshot) {
+      const messageData = snapshot.val();
+      const chatBox = document.getElementById("chatBox");
+      const newMessage = document.createElement("div");
+      newMessage.textContent = `${messageData.username}: ${messageData.message}`;
+      chatBox.appendChild(newMessage);
+      chatBox.scrollTop = chatBox.scrollHeight; // Rola até a última mensagem
+    });
+  </script>
+</body>
+</html>
